@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+	<bean name="logAop" class="com.happy.prj.aop.LogExecute"> </bean><!-- s가 붙으면 모두 spring bean -->
+	
+	<!-- 로그정보 전, 반환 후, 예외 -->
+	<aop:config>
+		<aop:pointcut id="serviceLogPoint"
+		 expression="execution(public * com.happy.prj.model.*Dao*.*(..))"/>
+		<!-- happy.com.spring.model 이 패키지 아래에 있는 Dao가 중간에 들어가 있는 클래스들 안에서 모든  (..) 모든 아규먼트들을 대상으로 -->
+		
+		<aop:aspect id="logAop" ref="logAop">
+			<!-- 메소드가 실행되어야 하는데 어느 상황일때 필요한지를 ref로 명시 -->
+			<aop:before method="before" pointcut-ref="serviceLogPoint"/> 
+			<aop:after-returning method="afterReturning" pointcut-ref="serviceLogPoint"/>
+			<aop:after-throwing method="daoError" pointcut-ref="serviceLogPoint"/> <!-- error -->
+		</aop:aspect>
+	</aop:config>
+	
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+</beans>
